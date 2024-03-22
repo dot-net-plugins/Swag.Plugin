@@ -1,23 +1,42 @@
+name: Swag.Plugin
 on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+    push:
+        branches: [develop, main, master]
+
+env:
+    NUGET_URL: "https://nuget.pkg.github.com/dot-net-plugins/index.json"
+    VERSION: 
+    VERSION_SUFFIX: 
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v2
+    build:
+        runs-on: ubuntu-latest
 
-    - name: Install dotnet
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 8.0.0
+        steps:
+        - uses: actions/checkout@v3
 
-    - name: Build
-      run: dotnet build --configuration Release
+        - name: Setup .NET
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: 8.0.x
+        - name: Restore
+          run: dotnet restore
+        - name: Build
+          run: dotnet build --no-restore
+        - name: Test
+          run: dotnet test --no-build --verbosity normal
+        - name: Versioning
+          run: |
+            if [ "$GITHUB_REF" == "refs/heads/main" ]; then
+                echo "VERSION_SUFFIX=" >> $GITHUB_ENV
+            else
+                echo "VERSION_SUFFIX=-dev-${{ github.run_number }}" >> $GITHUB_ENV
+            fi
+            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" *.csproj)
+            echo "VERSION=$VERSION"
+
+        - name: Pack
+          run: dotnet pack --no-build -c Release -o nupkgs -p:PackageVersion=${{ env.VERSION }}${{ env.VERSION_SUFFIX }}
+
+        - name: publish
+          run: dotnet nuget push nupkgs/*.nupkg --source ${{ env.NUGET_URL }} --api-key ${{ secrets.TOKEN }}
