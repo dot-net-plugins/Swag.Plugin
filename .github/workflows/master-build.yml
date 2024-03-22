@@ -32,8 +32,8 @@ jobs:
             else
                 echo "VERSION_SUFFIX=-dev-${{ github.run_number }}" >> $GITHUB_ENV
             fi
-            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" Swag.Plugin/*.csproj) >> $GITHUB_ENV
-            echo "VERSION=$VERSION"
+            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" Swag.Plugin/*.csproj)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
 
         - name: Pack
           run: dotnet pack --no-build -c Release -o nupkgs -p:PackageVersion=${{ env.VERSION }}${{ env.VERSION_SUFFIX }}
