@@ -25,12 +25,12 @@ internal class SwagCrudOperationFilter : IOperationFilter
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var controllerActionDescriptor = context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
-        var methodActionDescriptor = controllerActionDescriptor.MethodInfo;
+        var methodActionDescriptor = controllerActionDescriptor?.MethodInfo;
 
         var swagControllerAttribute = controllerActionDescriptor?.ControllerTypeInfo.GetCustomAttribute<SwagControllerAttribute>();
         if (swagControllerAttribute == null) return;
         var swagOverrideAnnotationClassWide = controllerActionDescriptor?.ControllerTypeInfo.GetCustomAttribute<SwagOverrideAnnotationClassAttribute>() ?? new SwagOverrideAnnotationClassAttribute();
-        var swagOverrideAnnotationAttribute = methodActionDescriptor.GetCustomAttribute<SwagOverrideAnnotationAttribute>() ?? new SwagOverrideAnnotationAttribute();
+        var swagOverrideAnnotationAttribute = methodActionDescriptor?.GetCustomAttribute<SwagOverrideAnnotationAttribute>() ?? new SwagOverrideAnnotationAttribute();
         var allowDescription = BoolHelper.GetBoolValue(swagOverrideAnnotationClassWide.AllowDescription, swagOverrideAnnotationAttribute.AllowDescription);
         var allowSummary = BoolHelper.GetBoolValue(swagOverrideAnnotationClassWide.AllowSummary, swagOverrideAnnotationAttribute.AllowSummary);
         switch (context.ApiDescription.HttpMethod?.ToLowerInvariant())
@@ -38,27 +38,57 @@ internal class SwagCrudOperationFilter : IOperationFilter
             case "get":
                 operation.Description = operation.Description.CheckString(GetConstant.Description, allowDescription);
                 operation.Summary = operation.Summary.CheckString(GetConstant.Summary, allowSummary);
+#if NET8_0
                 GetResponse(operation, context, swagControllerAttribute, [ResponseCodes.Success, ResponseCodes.NoContent, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound]);
+#endif
+#if NET6_0_OR_GREATER
+                var getCodesArray = new[] { ResponseCodes.Success, ResponseCodes.NoContent, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound };
+                GetResponse(operation, context, swagControllerAttribute,getCodesArray);
+#endif
                 break;
             case "post":
                 operation.Description = operation.Description.CheckString(PostConstant.Description, allowDescription);
                 operation.Summary = operation.Summary.CheckString(PostConstant.Summary, allowSummary);
+#if NET8_0
                 GetResponse(operation, context, swagControllerAttribute, [ResponseCodes.Created, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.Conflicted]);
+#endif
+#if NET6_0_OR_GREATER
+                var postCodesArray = new[] { ResponseCodes.Created, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.Conflicted };
+                GetResponse(operation, context, swagControllerAttribute, postCodesArray);
+#endif
                 break;
             case "put":
                 operation.Description = operation.Description.CheckString(PutConstant.Description, allowDescription);
                 operation.Summary = operation.Summary.CheckString(PutConstant.Summary, allowSummary);
+#if NET8_0
                 GetResponse(operation, context, swagControllerAttribute, [ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound, ResponseCodes.Conflicted]);
+#endif
+#if NET6_0_OR_GREATER
+                var putCodesArray = new[] { ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound, ResponseCodes.Conflicted };
+                GetResponse(operation, context, swagControllerAttribute, putCodesArray);
+#endif
                 break;
             case "delete":
                 operation.Description = operation.Description.CheckString(DeleteConstant.Description, allowDescription);
                 operation.Summary = operation.Summary.CheckString(DeleteConstant.Summary, allowSummary);
+#if NET8_0
                 GetResponse(operation, context, swagControllerAttribute, [ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound]);
+#endif
+#if NET6_0_OR_GREATER
+                var delCodesArray = new[] { ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound };
+                GetResponse(operation, context, swagControllerAttribute, delCodesArray);
+#endif
                 break;
             case "patch":
                 operation.Description = operation.Description.CheckString(PatchConstant.Description, allowDescription);
                 operation.Summary = operation.Summary.CheckString(PatchConstant.Summary, allowSummary);
+#if NET8_0
                 GetResponse(operation, context, swagControllerAttribute, [ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound]);
+#endif
+#if NET6_0_OR_GREATER
+                var patchCodesArray = new[] { ResponseCodes.Success, ResponseCodes.BadRequest, ResponseCodes.Unauthorized, ResponseCodes.NotFound };
+                GetResponse(operation, context, swagControllerAttribute, patchCodesArray);
+#endif
                 break;
             default:
                 operation.Description = "This case acts as a fallback for undefined or unsupported HTTP methods requested by the client, ensuring robust error handling in the API.";

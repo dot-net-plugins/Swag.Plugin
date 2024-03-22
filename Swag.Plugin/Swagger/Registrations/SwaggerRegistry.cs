@@ -14,7 +14,8 @@ public static class SwaggerRegistry
     /// that adjust API descriptions based on the Swag plugin's annotations and configurations.
     /// </summary>
     /// <param name="options">The SwaggerGenOptions instance to configure.</param>
-    public static void RegisterSwag(this SwaggerGenOptions options, Action<SwagOptions> configureSwaggerOptions = null)
+    /// <param name="configureSwaggerOptions">Options offered by Swag.Plugin</param>
+    public static void RegisterSwag(this SwaggerGenOptions options, Action<SwagOptions>? configureSwaggerOptions = null)
     {
         var swagOptions = new SwagOptions(options);
         configureSwaggerOptions?.Invoke(swagOptions);
