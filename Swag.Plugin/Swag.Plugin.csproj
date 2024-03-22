@@ -12,7 +12,7 @@
 		<Product>Swagger Plugin</Product>
 		<PackageId>Swag.Plugin</PackageId>
 		<PackageDescription>Swagger plugin to make adding swagger to your api easy.</PackageDescription>
-		<RepositoryUrl>https://github.com/yourusername/yourrepository</RepositoryUrl>
+		<RepositoryUrl>https://github.com/dot-net-plugins/Swag.Plugin</RepositoryUrl>
 	</PropertyGroup>
 
 	<ItemGroup>

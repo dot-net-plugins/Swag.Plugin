@@ -22,9 +22,9 @@ jobs:
         - name: Restore
           run: dotnet restore
         - name: Build
-          run: dotnet build --no-restore
+          run: dotnet build --no-restore --configuration Release
         - name: Test
-          run: dotnet test --no-build --verbosity normal
+          run: dotnet test --no-build
         - name: Versioning
           run: |
             if [ "$GITHUB_REF" == "refs/heads/main" ]; then
@@ -32,8 +32,8 @@ jobs:
             else
                 echo "VERSION_SUFFIX=-dev-${{ github.run_number }}" >> $GITHUB_ENV
             fi
-            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" *.csproj)
-            echo "VERSION=$VERSION"
+            VERSION=$(grep -oPm1 "(?<=<Version>)[^<]+" Swag.Plugin/*.csproj)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
 
         - name: Pack
           run: dotnet pack --no-build -c Release -o nupkgs -p:PackageVersion=${{ env.VERSION }}${{ env.VERSION_SUFFIX }}
